@@ -244,12 +244,8 @@ namespace RedditSharp
 
         public Subreddit GetSubreddit(string name)
         {
-            if (name.StartsWith("r/"))
-                name = name.Substring(2);
-            if (name.StartsWith("/r/"))
-                name = name.Substring(3);
-            name = name.TrimEnd('/');
-            return GetThing<Subreddit>(string.Format(SubredditAboutUrl, name));
+            name = System.Text.RegularExpressions.Regex.Replace(name, "(r/|/)", "");
+            return GetThing<Subreddit>(string.Format(SubredditAboutUrl, name)).Result;
         }
 
         /// <summary>
@@ -264,7 +260,7 @@ namespace RedditSharp
             if (name.StartsWith("/r/"))
                 name = name.Substring(3);
             name = name.TrimEnd('/');
-            return await GetThingAsync<Subreddit>(string.Format(SubredditAboutUrl, name));
+            return await GetThing<Subreddit>(string.Format(SubredditAboutUrl, name));
         }
 
         public Domain GetDomain(string domain)
@@ -493,7 +489,7 @@ namespace RedditSharp
 
         #region Helpers
 
-        protected async internal Task<T> GetThingAsync<T>(string url) where T : Thing
+        protected async internal Task<T> GetThing<T>(string url) where T : Thing
         {
             var request = WebAgent.CreateGet(url);
             var response = request.GetResponse();
@@ -501,15 +497,6 @@ namespace RedditSharp
             var json = JToken.Parse(data);
             var ret = await Thing.Parse(this, json, WebAgent);
             return (T)ret;
-        }
-
-        protected internal T GetThing<T>(string url) where T : Thing
-        {
-            var request = WebAgent.CreateGet(url);
-            var response = request.GetResponse();
-            var data = WebAgent.GetResponseString(response.GetResponseStream());
-            var json = JToken.Parse(data);
-            return (T)Thing.Parse(this, json, WebAgent).Result;
         }
 
         #endregion

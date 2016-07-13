@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace RedditSharp.Things
 {
@@ -33,11 +33,11 @@ namespace RedditSharp.Things
 
         private JToken CommonInit(Reddit reddit, JToken json, IWebAgent webAgent, Thing sender)
         {
-            base.Init(reddit, webAgent, json);
+            Init(reddit, webAgent, json);
             var data = json["data"];
             Reddit = reddit;
             WebAgent = webAgent;
-            this.Parent = sender;
+            Parent = sender;
 
             // Handle Reddit's API being horrible
             if (data["context"] != null)
@@ -120,7 +120,7 @@ namespace RedditSharp.Things
                     linkId = this.LinkId.Substring(index + 1);
                 }
 
-                return String.Format("{0}://{1}/r/{2}/comments/{3}/_/{4}",
+                return string.Format("{0}://{1}/r/{2}/comments/{3}/_/{4}",
                                      RedditSharp.WebAgent.Protocol, RedditSharp.WebAgent.RootDomain,
                                      this.Subreddit, this.Parent != null ? this.Parent.Id : linkId, this.Id);
             }
